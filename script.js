@@ -139,38 +139,27 @@ function showLesson(moduleId) {
     formattedLesson = formattedLesson.replace(/^\* (.*$)/gm, '<li>$1</li>');
 
     // 4. Wrap consecutive <li> items in <ul> tags
-    // Find blocks of <li> items and wrap them
     formattedLesson = formattedLesson.replace(/(<li>(?:.|\n|\r)*?<\/li>)/g, (match) => {
-        // Check if the match is already inside a <ul>, prevent double wrapping
-        // This simple regex might not perfectly handle nested lists, but good for now.
-        if (match.startsWith('<ul>')) return match;
+        if (match.startsWith('<ul>')) return match; // Prevent double wrapping
         return `<ul>${match}</ul>`;
     });
-    // Merge adjacent <ul> tags that might result from the previous step
-    formattedLesson = formattedLesson.replace(/<\/ul>\s*<ul>/g, '');
-
+    formattedLesson = formattedLesson.replace(/<\/ul>\s*<ul>/g, ''); // Merge adjacent <ul> tags
 
     // 5. Wrap remaining text blocks (paragraphs) in <p> tags
-    // Split by processed tags (h3, ul, li - need li here too) and wrap remaining lines
     formattedLesson = formattedLesson.split(/(<\/?(?:ul|li|h3)>)/g) // Split by tags, keeping delimiters
         .map(segment => {
             if (segment.match(/<\/?(?:ul|li|h3)>/) || segment.trim() === '') {
                 return segment; // Keep tags and empty lines as is
             }
-            // Wrap actual text content in <p> tags, split by double newlines first for paragraphs
-            // Then replace single newlines within those blocks with <br>
+            // Wrap paragraphs, replace single newlines within paragraphs with <br>
             return segment.trim().split(/\n\n+/).map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`).join('');
         })
         .join('');
 
-    // Basic cleanup: remove empty <p> tags that might be generated
-    formattedLesson = formattedLesson.replace(/<p>\s*<\/p>/g, '');
-    // Remove <br> tags right before closing </p> tag as they are often redundant
-    formattedLesson = formattedLesson.replace(/<br>\s*<\/p>/g, '</p>');
-    // Remove <br> tags immediately after opening <p> tag
-    formattedLesson = formattedLesson.replace(/<p>\s*<br>/g, '<p>');
+    formattedLesson = formattedLesson.replace(/<p>\s*<\/p>/g, ''); // Remove empty paragraphs
+    formattedLesson = formattedLesson.replace(/<br>\s*<\/p>/g, '</p>'); // Clean up trailing breaks in paragraphs
+    formattedLesson = formattedLesson.replace(/<p>\s*<br>/g, '<p>'); // Clean up leading breaks in paragraphs
     // --- End Improved Formatting ---
-
 
     lessonContent.innerHTML = formattedLesson; // Use innerHTML to render the tags
     lessonContent.scrollTop = 0; // Scroll lesson to top when displayed
@@ -181,21 +170,18 @@ function showLesson(moduleId) {
 /** Starts the quiz for a given module ID */
 function startQuiz(moduleId) {
     const module = quizModules.find(m => m.id === moduleId);
-    // Check if module exists AND if it has questions OR if app is unlocked (allowing access even if empty for now)
     if (!module || (module.questions.length === 0 && !(module.isLocked && isUnlocked))) {
         if (module && module.questions.length === 0) {
              alert('Quiz questions for this module are coming soon!');
         } else {
              alert('Quiz not available.');
         }
-        // If starting from lesson screen, don't just go back to main menu, stay or go back to lesson?
-        // For now, let's go back to main menu if quiz isn't ready.
         goBackToMenu();
         return;
     }
 
-    // currentModuleId should already be set by showLesson or startQuiz call
-    currentQuestions = module.questions; // Use the actual questions for the module
+    currentModuleId = moduleId; // Ensure this is set correctly here too
+    currentQuestions = module.questions;
     currentQuestionIndex = 0;
     score = 0;
     answered = false;
@@ -224,8 +210,8 @@ function displayQuestion() {
         const button = document.createElement('button');
         button.textContent = option;
         button.classList.add('option-button');
-        // Reset styles explicitly
-        button.style.backgroundColor = ''; // Let CSS handle default
+        // Reset styles explicitly on display
+        button.style.backgroundColor = '';
         button.style.color = '';
         button.style.borderColor = '';
         button.disabled = false;
@@ -252,23 +238,20 @@ function handleAnswer(selectedIndex) {
     optionButtons.forEach((button, index) => {
         button.disabled = true; // Disable all buttons
         button.style.cursor = 'default';
-        button.style.border = '1px solid transparent'; // Reset border
+        button.style.border = '1px solid transparent'; // Reset border for feedback colors
 
         if (index === question.correctAnswerIndex) {
-            // Correct answer button
-            button.style.backgroundColor = '#d4edda'; // Light green
-            button.style.color = '#155724'; // Dark green text
-            button.style.borderColor = '#c3e6cb';
+            button.style.backgroundColor = '#d1e7dd'; // Bootstrap light green
+            button.style.color = '#0f5132';
+            button.style.borderColor = '#badbcc';
         } else if (index === selectedIndex && !isCorrect) {
-            // Incorrectly selected button
-            button.style.backgroundColor = '#f8d7da'; // Light red
-            button.style.color = '#721c24'; // Dark red text
-            button.style.borderColor = '#f5c6cb';
+            button.style.backgroundColor = '#f8d7da'; // Bootstrap light red
+            button.style.color = '#842029';
+            button.style.borderColor = '#f5c2c7';
         } else {
-            // Other incorrect buttons
-            button.style.backgroundColor = '#e2e3e5'; // Light grey
-            button.style.color = '#6c757d'; // Grey text
-            button.style.borderColor = '#d6d8db';
+            button.style.backgroundColor = '#f8f9fa'; // Lighter grey using variable from CSS eventually
+            button.style.color = '#6c757d';
+            button.style.borderColor = '#dee2e6';
         }
     });
 
@@ -298,16 +281,11 @@ function showResults() {
     resultsTitle.textContent = `Quiz Complete: ${moduleTitle}`;
     resultsScore.textContent = `Your Score: ${score} / ${currentQuestions.length}`;
 
-    // Add a simple encouraging message based on score
     let message = "Good effort!";
     const percentage = currentQuestions.length > 0 ? (score / currentQuestions.length) * 100 : 0;
-    if (percentage >= 80) {
-        message = "Excellent work! 🏆";
-    } else if (percentage >= 50) {
-        message = "Well done, keep learning! 👍";
-    } else {
-         message = "Keep practicing to improve! 💪";
-    }
+    if (percentage >= 80) { message = "Excellent work! 🏆"; }
+    else if (percentage >= 50) { message = "Well done, keep learning! 👍"; }
+    else { message = "Keep practicing to improve! 💪"; }
     resultsMessage.textContent = message;
 
     showScreen('results-screen');
@@ -321,13 +299,12 @@ function goBackToMenu() {
     currentQuestionIndex = 0;
     score = 0;
     answered = false;
-    displayModules(); // Refresh module list in case unlock status changed
+    displayModules(); // Refresh module list
     showScreen('main-menu-screen');
 }
 
 /** Shows the unlock screen */
 function showUnlockScreen() {
-     // !! Link to your Ko-fi product for the unlock key !!
     getKeyLink.href = "https://ko-fi.com/s/9c92617f03"; // *** YOUR ACTUAL LINK ***
     unlockStatus.textContent = '';
     unlockKeyInput.value = '';
@@ -336,33 +313,32 @@ function showUnlockScreen() {
 
 /** Verifies the unlock key */
 function verifyUnlockKey() {
-    const key = unlockKeyInput.value.trim().toUpperCase(); // Convert to uppercase
+    const key = unlockKeyInput.value.trim().toUpperCase();
     const validKey = "AETHELUNLOCK2025"; // ** Your simple unlock key **
 
     if (key === validKey) {
-        localStorage.setItem('aetheltechQuizUnlocked', 'true'); // Save unlock status
+        localStorage.setItem('aetheltechQuizUnlocked', 'true');
         isUnlocked = true;
         unlockStatus.textContent = "Success! All modules unlocked.";
         unlockStatus.style.color = 'green';
-        setTimeout(goBackToMenu, 1500); // Go back after 1.5 seconds
+        setTimeout(goBackToMenu, 1500);
     } else {
          unlockStatus.textContent = "Invalid Key. Please check the key and try again.";
          unlockStatus.style.color = 'red';
-         localStorage.setItem('aetheltechQuizUnlocked', 'false'); // Ensure it's set to false
+         localStorage.setItem('aetheltechQuizUnlocked', 'false');
          isUnlocked = false;
     }
 }
 
-
 // --- Event Listeners ---
 unlockButton.addEventListener('click', showUnlockScreen);
-quizBackButton.addEventListener('click', goBackToMenu); // Go back to main menu from quiz
-lessonBackButton.addEventListener('click', goBackToMenu); // Go back to main menu from lesson
+quizBackButton.addEventListener('click', goBackToMenu);
+lessonBackButton.addEventListener('click', goBackToMenu);
 unlockBackButton.addEventListener('click', goBackToMenu);
 resultsBackButton.addEventListener('click', goBackToMenu);
 nextQuestionButton.addEventListener('click', nextQuestion);
 verifyKeyButton.addEventListener('click', verifyUnlockKey);
-startQuizButton.addEventListener('click', () => { // Start quiz from lesson
+startQuizButton.addEventListener('click', () => {
     if (currentModuleId) {
         startQuiz(currentModuleId);
     } else {
@@ -371,14 +347,17 @@ startQuizButton.addEventListener('click', () => { // Start quiz from lesson
     }
 });
 
-
 // --- Initial Setup ---
 displayModules(); // Load modules based on initial unlock status
 console.log("App Initialized. Unlocked status:", isUnlocked);
+
 // --- Service Worker Registration ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/aetheltech_quiz_pwa/sw.js') // Adjust path if needed when deployed
+        const swPath = window.location.pathname.includes('/aetheltech_quiz_pwa/')
+                       ? '/aetheltech_quiz_pwa/sw.js'
+                       : '/sw.js'; // Adjust path for local vs deployed
+        navigator.serviceWorker.register(swPath)
             .then(registration => {
                 console.log('Service Worker registered successfully with scope: ', registration.scope);
             })
