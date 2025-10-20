@@ -1,0 +1,241 @@
+/* Basic Reset and Body Styling */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; /* System fonts */
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5; /* Light grey background */
+    color: #333; /* Dark grey text */
+    display: flex; /* Helps center the app container */
+    justify-content: center;
+    align-items: flex-start; /* Align container to the top */
+    min-height: 100vh; /* Ensure body takes full viewport height */
+    line-height: 1.5; /* Improve readability */
+}
+
+/* App Container Styling */
+#app-container {
+    background-color: #ffffff; /* White background for the app */
+    padding: 25px;
+    margin: 30px 15px; /* More space around */
+    border-radius: 10px; /* Slightly rounder corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Slightly stronger shadow */
+    width: 95%; /* Responsive width */
+    max-width: 600px; /* Slightly wider max width */
+    box-sizing: border-box; /* Include padding in width */
+    display: flex; /* Use flexbox to manage screen transitions */
+    overflow: hidden; /* Prevent content overflow during transitions (optional) */
+}
+
+/* Screen Visibility Logic */
+.screen {
+    display: none; /* Hide all screens by default */
+    flex-direction: column; /* Stack elements vertically inside screens */
+    gap: 18px; /* Add space between elements */
+    width: 100%; /* Make screens take full container width */
+    box-sizing: border-box;
+    /* Basic transition (optional) */
+    /* animation: fadeIn 0.3s ease-in-out; */
+}
+
+.screen.active {
+    display: flex; /* Show the active screen using flexbox */
+}
+
+/* Optional Fade-in Animation */
+/* @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+} */
+
+
+/* Basic Element Styling */
+h1, h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #0d47a1; /* Darker blue accent color */
+}
+
+h1 {
+    font-size: 1.6em;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 1.3em;
+}
+
+button, input[type="text"] {
+    padding: 12px 18px;
+    font-size: 1em;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    cursor: pointer;
+    text-align: center; /* Center button text */
+}
+
+button {
+    background-color: #1a73e8; /* Blue button */
+    color: white;
+    border: none;
+    transition: background-color 0.2s ease, transform 0.1s ease; /* Smooth hover effect + slight press effect */
+}
+button:not(:disabled):hover {
+    background-color: #1558b0; /* Darker blue on hover */
+}
+button:not(:disabled):active {
+    transform: scale(0.98); /* Slight press effect */
+}
+button:disabled {
+    background-color: #e0e0e0; /* Grey background when disabled */
+    color: #9e9e9e; /* Lighter text when disabled */
+    cursor: not-allowed;
+}
+
+input[type="text"] {
+    width: 100%;
+    margin-bottom: 10px; /* Space below input */
+}
+
+a {
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: bold;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* --- Main Menu Specific Styling --- */
+#module-list {
+    margin-top: 10px;
+}
+.module-item {
+    transition: background-color 0.2s ease;
+}
+/* Apply hover only if cursor is pointer */
+.module-item[style*="cursor: pointer"]:hover {
+    background-color: #f5f5f5 !important;
+}
+
+#unlock-button .icon {
+    margin-right: 8px;
+}
+
+/* --- Quiz Screen Specific Styling --- */
+#question-container {
+    padding: 10px;
+    background-color: #f8f9fa; /* Very light grey background */
+    border-radius: 6px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+#question-number {
+    font-size: 0.9em;
+    color: #6c757d; /* Grey text */
+    margin-bottom: 5px;
+}
+#question-text {
+    font-size: 1.15em;
+    font-weight: bold;
+    color: #212529; /* Darker text */
+    margin: 0;
+}
+
+#options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Space between option buttons */
+}
+
+.option-button { /* Style for dynamically created buttons */
+    width: 100%;
+    text-align: left; /* Align text left */
+    background-color: white; /* Default background */
+    color: #333; /* Default text color */
+    border: 1px solid #ccc;
+    justify-content: flex-start; /* Align content left */
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; /* Add transitions */
+}
+.option-button:not(:disabled):hover {
+    background-color: #e9ecef; /* Light grey hover */
+    border-color: #adb5bd;
+}
+/* Specific styles for feedback states will override these */
+
+
+#feedback-container {
+    display: none; /* Initially hidden */
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee; /* Separator line */
+}
+#explanation-text {
+     background-color: #e8f0fe; /* Light blue background for explanation */
+     color: #0d47a1; /* Darker blue text */
+     padding: 12px;
+     border-radius: 5px;
+     text-align: center;
+     font-size: 0.95em;
+}
+#next-question-button {
+    background-color: #28a745; /* Green for next button */
+    color: white;
+}
+#next-question-button:hover {
+    background-color: #218838; /* Darker green */
+}
+
+/* --- Unlock Screen Specific Styling --- */
+#unlock-screen p {
+    text-align: center;
+}
+#unlock-status {
+    text-align: center;
+    font-weight: bold;
+    min-height: 1.2em; /* Reserve space even when empty */
+    margin-top: 5px;
+}
+#verify-key-button {
+    background-color: #ffc107; /* Yellow/Orange */
+    color: #333;
+}
+#verify-key-button:hover {
+    background-color: #e0a800;
+}
+
+/* --- Results Screen Specific Styling --- */
+#results-screen {
+    text-align: center; /* Center align text */
+}
+#results-score {
+    font-size: 1.4em;
+    font-weight: bold;
+    margin: 15px 0;
+}
+#results-message {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 25px;
+}
+
+
+/* --- Utility Styling --- */
+.back-button { /* Styling for back buttons */
+    background: none;
+    border: none;
+    color: #1a73e8;
+    font-size: 1em;
+    align-self: flex-start; /* Position to the left */
+    padding: 0 0 10px 0; /* Add some padding */
+    cursor: pointer;
+    font-weight: bold;
+}
+.back-button:hover {
+    text-decoration: underline;
+    background: none; /* Override default hover */
+    transform: none; /* Override default active */
+}
