@@ -10,6 +10,10 @@
 <body>
     <div id="app-container">
 
+        <div class="app-header">
+            <img src="icon-192.png" alt="Aetheltech Logo" id="app-logo">
+        </div>
+
         <div id="main-menu-screen" class="screen active">
             <h1>Aetheltech Cybersecurity Quiz</h1>
             <h2>Select a Module:</h2>
@@ -19,6 +23,15 @@
             <button id="unlock-button">
                 <span class="icon">🔑</span> Unlock All Modules
             </button>
+        </div>
+
+        <div id="lesson-screen" class="screen">
+            <h2 id="lesson-title">Lesson Title</h2>
+            <button id="lesson-back-button" class="back-button">← Back</button>
+            <div id="lesson-content">
+                <p>Loading lesson...</p>
+            </div>
+            <button id="start-quiz-button">Take the Quiz →</button>
         </div>
 
         <div id="quiz-screen" class="screen">

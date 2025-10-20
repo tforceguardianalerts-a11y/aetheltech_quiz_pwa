@@ -23,6 +23,7 @@ body {
     max-width: 600px; /* Slightly wider max width */
     box-sizing: border-box; /* Include padding in width */
     display: flex; /* Use flexbox to manage screen transitions */
+    flex-direction: column; /* Stack header and active screen vertically */
     overflow: hidden; /* Prevent content overflow during transitions (optional) */
 }
 
@@ -47,13 +48,47 @@ body {
     to { opacity: 1; }
 } */
 
+/* --- App Header Styling --- */
+.app-header {
+    text-align: center; /* Center the logo */
+    margin-bottom: 25px; /* Space below the logo */
+    padding-bottom: 15px; /* Space below logo */
+    border-bottom: 1px solid #eee; /* Separator line */
+    width: 100%; /* Ensure header takes full width */
+}
+
+#app-logo {
+    max-width: 80px; /* Control logo size */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 8px; /* Slightly round corners if logo is square */
+}
+
+/* --- Theme Adjustments --- */
+:root {
+     --primary-color: #1a73e8; /* Define primary blue color */
+     --darker-primary-color: #1558b0;
+     --heading-color: #0d47a1; /* Darker blue for headings */
+     --success-color: #28a745;
+     --darker-success-color: #218838;
+     --warning-color: #ffc107;
+     --darker-warning-color: #e0a800;
+     --danger-color: #dc3545; /* Define a red color for errors */
+     --light-text-color: #ffffff;
+     --dark-text-color: #333;
+     --grey-text-color: #6c757d;
+     --light-background-color: #f8f9fa;
+     --border-color: #dee2e6;
+     --disabled-bg-color: #e9ecef;
+     --disabled-text-color: #adb5bd;
+}
+
 
 /* Basic Element Styling */
 h1, h2 {
     text-align: center;
     margin-top: 0;
     margin-bottom: 10px;
-    color: #0d47a1; /* Darker blue accent color */
+    color: var(--heading-color); /* Use variable */
 }
 
 h1 {
@@ -76,22 +111,24 @@ button, input[type="text"] {
 }
 
 button {
-    background-color: #1a73e8; /* Blue button */
-    color: white;
+    background-color: var(--primary-color); /* Use variable */
+    color: var(--light-text-color);
     border: none;
     transition: background-color 0.2s ease, transform 0.1s ease; /* Smooth hover effect + slight press effect */
 }
 button:not(:disabled):hover {
-    background-color: #1558b0; /* Darker blue on hover */
+    background-color: var(--darker-primary-color); /* Use variable */
 }
 button:not(:disabled):active {
     transform: scale(0.98); /* Slight press effect */
 }
 button:disabled {
-    background-color: #e0e0e0; /* Grey background when disabled */
-    color: #9e9e9e; /* Lighter text when disabled */
+    background-color: var(--disabled-bg-color); /* Use variable */
+    color: var(--disabled-text-color); /* Use variable */
     cursor: not-allowed;
+    border-color: var(--border-color); /* Match border */
 }
+
 
 input[type="text"] {
     width: 100%;
@@ -99,7 +136,7 @@ input[type="text"] {
 }
 
 a {
-    color: #1a73e8;
+    color: var(--primary-color);
     text-decoration: none;
     font-weight: bold;
 }
@@ -113,6 +150,7 @@ a:hover {
 }
 .module-item {
     transition: background-color 0.2s ease;
+    border-color: var(--border-color) !important; /* Use variable */
 }
 /* Apply hover only if cursor is pointer */
 .module-item[style*="cursor: pointer"]:hover {
@@ -123,17 +161,71 @@ a:hover {
     margin-right: 8px;
 }
 
+/* --- Lesson Screen Specific Styling --- */
+#lesson-screen {
+    text-align: left; /* Default lesson text alignment */
+}
+#lesson-content {
+    background-color: var(--light-background-color); /* Use variable */
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    max-height: 60vh; /* Limit height and allow scrolling */
+    overflow-y: auto; /* Add scrollbar if content overflows */
+    line-height: 1.6; /* Improve readability */
+    border: 1px solid var(--border-color); /* Add subtle border */
+}
+#lesson-content h3 { /* Style headings within lessons */
+    font-size: 1.15em;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    color: var(--heading-color);
+    border-bottom: 1px solid #eee; /* Add a light separator line */
+    padding-bottom: 4px;
+}
+ #lesson-content ul { /* Style unordered lists */
+    padding-left: 25px; /* Indent list */
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+ #lesson-content li { /* Style list items */
+    margin-bottom: 8px; /* Space between items */
+    line-height: 1.6; /* Ensure good line spacing */
+}
+ #lesson-content strong { /* Style bold text */
+    font-weight: 600;
+    color: var(--heading-color); /* Use darker blue for emphasis */
+}
+
+ #lesson-content p { /* Add some space between paragraphs */
+   margin-top: 0; /* Reset default margin */
+   margin-bottom: 12px;
+}
+#lesson-content p:last-child { /* Remove margin from last paragraph */
+    margin-bottom: 0;
+}
+
+#start-quiz-button {
+    background-color: var(--success-color); /* Use variable */
+    color: var(--light-text-color);
+}
+#start-quiz-button:hover {
+    background-color: var(--darker-success-color); /* Use variable */
+}
+
+
 /* --- Quiz Screen Specific Styling --- */
 #question-container {
-    padding: 10px;
-    background-color: #f8f9fa; /* Very light grey background */
+    padding: 15px; /* More padding */
+    background-color: var(--light-background-color); /* Use variable */
     border-radius: 6px;
-    margin-bottom: 10px;
+    margin-bottom: 15px; /* More space */
     text-align: center;
+    border: 1px solid var(--border-color); /* Add subtle border */
 }
 #question-number {
     font-size: 0.9em;
-    color: #6c757d; /* Grey text */
+    color: var(--grey-text-color); /* Use variable */
     margin-bottom: 5px;
 }
 #question-text {
@@ -141,6 +233,7 @@ a:hover {
     font-weight: bold;
     color: #212529; /* Darker text */
     margin: 0;
+    line-height: 1.4; /* Adjust line height for questions */
 }
 
 #options-container {
@@ -153,7 +246,7 @@ a:hover {
     width: 100%;
     text-align: left; /* Align text left */
     background-color: white; /* Default background */
-    color: #333; /* Default text color */
+    color: var(--dark-text-color); /* Use variable */
     border: 1px solid #ccc;
     justify-content: flex-start; /* Align content left */
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; /* Add transitions */
@@ -163,6 +256,26 @@ a:hover {
     border-color: #adb5bd;
 }
 /* Specific styles for feedback states will override these */
+/* Correct Answer Button Style (Set via JS) */
+.option-button[style*="#d4edda"], .option-button[style*="#d1f7d1"] {
+    background-color: #d1e7dd !important; /* Bootstrap light green */
+    color: #0f5132 !important;
+    border-color: #badbcc !important;
+    font-weight: bold;
+}
+/* Incorrect Selected Button Style (Set via JS) */
+.option-button[style*="#f8d7da"], .option-button[style*="#fddddd"] {
+    background-color: #f8d7da !important; /* Bootstrap light red */
+    color: #842029 !important;
+    border-color: #f5c2c7 !important;
+    font-weight: bold;
+}
+/* Other Incorrect Button Style (Set via JS) */
+.option-button[style*="#e2e3e5"], .option-button[style*="#ededed"] {
+   background-color: #f8f9fa !important; /* Lighter grey */
+   color: var(--grey-text-color) !important;
+   border-color: var(--border-color) !important;
+}
 
 
 #feedback-container {
@@ -175,18 +288,19 @@ a:hover {
 }
 #explanation-text {
      background-color: #e8f0fe; /* Light blue background for explanation */
-     color: #0d47a1; /* Darker blue text */
+     color: var(--heading-color); /* Use variable */
      padding: 12px;
      border-radius: 5px;
      text-align: center;
      font-size: 0.95em;
+     border: 1px solid #c8dafc; /* Add subtle border */
 }
 #next-question-button {
-    background-color: #28a745; /* Green for next button */
-    color: white;
+    background-color: var(--success-color); /* Use variable */
+    color: var(--light-text-color);
 }
 #next-question-button:hover {
-    background-color: #218838; /* Darker green */
+    background-color: var(--darker-success-color); /* Use variable */
 }
 
 /* --- Unlock Screen Specific Styling --- */
@@ -199,12 +313,19 @@ a:hover {
     min-height: 1.2em; /* Reserve space even when empty */
     margin-top: 5px;
 }
+#unlock-status[style*="red"] {
+     color: var(--danger-color) !important; /* Use consistent red for error */
+}
+#unlock-status[style*="green"] {
+     color: var(--success-color) !important; /* Use consistent green for success */
+}
+
 #verify-key-button {
-    background-color: #ffc107; /* Yellow/Orange */
-    color: #333;
+    background-color: var(--warning-color); /* Use variable */
+    color: var(--dark-text-color);
 }
 #verify-key-button:hover {
-    background-color: #e0a800;
+    background-color: var(--darker-warning-color);
 }
 
 /* --- Results Screen Specific Styling --- */
@@ -215,6 +336,7 @@ a:hover {
     font-size: 1.4em;
     font-weight: bold;
     margin: 15px 0;
+    color: var(--heading-color); /* Use heading color */
 }
 #results-message {
     font-size: 1.1em;
@@ -227,7 +349,7 @@ a:hover {
 .back-button { /* Styling for back buttons */
     background: none;
     border: none;
-    color: #1a73e8;
+    color: var(--primary-color); /* Use variable */
     font-size: 1em;
     align-self: flex-start; /* Position to the left */
     padding: 0 0 10px 0; /* Add some padding */
@@ -237,5 +359,8 @@ a:hover {
 .back-button:hover {
     text-decoration: underline;
     background: none; /* Override default hover */
+    transform: none; /* Override default active */
+}
+.back-button:active {
     transform: none; /* Override default active */
 }

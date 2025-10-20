@@ -3,7 +3,8 @@
 const mainMenuScreen = document.getElementById('main-menu-screen');
 const quizScreen = document.getElementById('quiz-screen');
 const unlockScreen = document.getElementById('unlock-screen');
-const resultsScreen = document.getElementById('results-screen'); // Added
+const resultsScreen = document.getElementById('results-screen');
+const lessonScreen = document.getElementById('lesson-screen'); // Added
 
 // Main Menu Elements
 const moduleListContainer = document.getElementById('module-list');
@@ -31,6 +32,12 @@ const resultsTitle = document.getElementById('results-title');
 const resultsScore = document.getElementById('results-score');
 const resultsMessage = document.getElementById('results-message');
 const resultsBackButton = document.getElementById('results-back-button');
+
+// Lesson Screen Elements
+const lessonTitle = document.getElementById('lesson-title');
+const lessonContent = document.getElementById('lesson-content');
+const startQuizButton = document.getElementById('start-quiz-button');
+const lessonBackButton = document.getElementById('lesson-back-button');
 
 
 // --- State Variables ---
@@ -86,9 +93,10 @@ function displayModules() {
 
         moduleElement.addEventListener('click', () => {
             if (!lockedStatus) {
-                startQuiz(module.id);
+                // Navigate to lesson first
+                showLesson(module.id);
             } else {
-                // Option 2: Navigate to Unlock Screen directly
+                // Navigate to Unlock Screen directly
                 showUnlockScreen();
             }
         });
@@ -100,6 +108,76 @@ function displayModules() {
     unlockButton.style.display = isUnlocked ? 'none' : 'block';
 }
 
+/** Displays the lesson for a given module ID */
+function showLesson(moduleId) {
+    const module = quizModules.find(m => m.id === moduleId);
+    if (!module) {
+        alert('Module not found!');
+        goBackToMenu();
+        return;
+    }
+    // Check if there's lesson text; if not, go straight to quiz.
+    if (!module.lessonText) {
+        console.warn("No lesson text found for module:", moduleId, ". Starting quiz directly.");
+        startQuiz(moduleId); // Go to quiz if no lesson
+        return;
+    }
+
+    currentModuleId = moduleId; // Store current module ID for the quiz button
+    lessonTitle.textContent = module.title;
+
+    // --- Improved Formatting ---
+    let formattedLesson = module.lessonText.trim();
+
+    // 1. Convert **Bold Text** to <strong>
+    formattedLesson = formattedLesson.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // 2. Convert lines starting with "**...**" followed by newline to <h3>
+    formattedLesson = formattedLesson.replace(/^\*\*(.*?)\*\*\s*$/gm, '<h3>$1</h3>');
+
+    // 3. Convert lines starting with "* " to <li>
+    formattedLesson = formattedLesson.replace(/^\* (.*$)/gm, '<li>$1</li>');
+
+    // 4. Wrap consecutive <li> items in <ul> tags
+    // Find blocks of <li> items and wrap them
+    formattedLesson = formattedLesson.replace(/(<li>(?:.|\n|\r)*?<\/li>)/g, (match) => {
+        // Check if the match is already inside a <ul>, prevent double wrapping
+        // This simple regex might not perfectly handle nested lists, but good for now.
+        if (match.startsWith('<ul>')) return match;
+        return `<ul>${match}</ul>`;
+    });
+    // Merge adjacent <ul> tags that might result from the previous step
+    formattedLesson = formattedLesson.replace(/<\/ul>\s*<ul>/g, '');
+
+
+    // 5. Wrap remaining text blocks (paragraphs) in <p> tags
+    // Split by processed tags (h3, ul, li - need li here too) and wrap remaining lines
+    formattedLesson = formattedLesson.split(/(<\/?(?:ul|li|h3)>)/g) // Split by tags, keeping delimiters
+        .map(segment => {
+            if (segment.match(/<\/?(?:ul|li|h3)>/) || segment.trim() === '') {
+                return segment; // Keep tags and empty lines as is
+            }
+            // Wrap actual text content in <p> tags, split by double newlines first for paragraphs
+            // Then replace single newlines within those blocks with <br>
+            return segment.trim().split(/\n\n+/).map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`).join('');
+        })
+        .join('');
+
+    // Basic cleanup: remove empty <p> tags that might be generated
+    formattedLesson = formattedLesson.replace(/<p>\s*<\/p>/g, '');
+    // Remove <br> tags right before closing </p> tag as they are often redundant
+    formattedLesson = formattedLesson.replace(/<br>\s*<\/p>/g, '</p>');
+    // Remove <br> tags immediately after opening <p> tag
+    formattedLesson = formattedLesson.replace(/<p>\s*<br>/g, '<p>');
+    // --- End Improved Formatting ---
+
+
+    lessonContent.innerHTML = formattedLesson; // Use innerHTML to render the tags
+    lessonContent.scrollTop = 0; // Scroll lesson to top when displayed
+    showScreen('lesson-screen');
+}
+
+
 /** Starts the quiz for a given module ID */
 function startQuiz(moduleId) {
     const module = quizModules.find(m => m.id === moduleId);
@@ -110,12 +188,14 @@ function startQuiz(moduleId) {
         } else {
              alert('Quiz not available.');
         }
+        // If starting from lesson screen, don't just go back to main menu, stay or go back to lesson?
+        // For now, let's go back to main menu if quiz isn't ready.
+        goBackToMenu();
         return;
     }
 
-    currentModuleId = moduleId;
-    // Use Password Power questions as placeholder if the selected module has none yet
-    currentQuestions = module.questions.length > 0 ? module.questions : quizModules[0].questions; // Use real questions or placeholder
+    // currentModuleId should already be set by showLesson or startQuiz call
+    currentQuestions = module.questions; // Use the actual questions for the module
     currentQuestionIndex = 0;
     score = 0;
     answered = false;
@@ -214,12 +294,13 @@ function nextQuestion() {
 
 /** Shows the final quiz results screen */
 function showResults() {
-    resultsTitle.textContent = `Quiz Complete: ${quizModules.find(m => m.id === currentModuleId)?.title || ''}`; // Add module title
+    const moduleTitle = quizModules.find(m => m.id === currentModuleId)?.title || '';
+    resultsTitle.textContent = `Quiz Complete: ${moduleTitle}`;
     resultsScore.textContent = `Your Score: ${score} / ${currentQuestions.length}`;
 
     // Add a simple encouraging message based on score
     let message = "Good effort!";
-    const percentage = (score / currentQuestions.length) * 100;
+    const percentage = currentQuestions.length > 0 ? (score / currentQuestions.length) * 100 : 0;
     if (percentage >= 80) {
         message = "Excellent work! 🏆";
     } else if (percentage >= 50) {
@@ -246,8 +327,8 @@ function goBackToMenu() {
 
 /** Shows the unlock screen */
 function showUnlockScreen() {
-     // !! IMPORTANT: Replace this placeholder link with your REAL Ko-fi product link !!
-    getKeyLink.href = "https://ko-fi.com/s/84416addde";
+     // !! Link to your Ko-fi product for the unlock key !!
+    getKeyLink.href = "https://ko-fi.com/s/9c92617f03"; // *** YOUR ACTUAL LINK ***
     unlockStatus.textContent = '';
     unlockKeyInput.value = '';
     showScreen('unlock-screen');
@@ -275,13 +356,36 @@ function verifyUnlockKey() {
 
 // --- Event Listeners ---
 unlockButton.addEventListener('click', showUnlockScreen);
-quizBackButton.addEventListener('click', goBackToMenu);
+quizBackButton.addEventListener('click', goBackToMenu); // Go back to main menu from quiz
+lessonBackButton.addEventListener('click', goBackToMenu); // Go back to main menu from lesson
 unlockBackButton.addEventListener('click', goBackToMenu);
-resultsBackButton.addEventListener('click', goBackToMenu); // Added listener for results back button
+resultsBackButton.addEventListener('click', goBackToMenu);
 nextQuestionButton.addEventListener('click', nextQuestion);
 verifyKeyButton.addEventListener('click', verifyUnlockKey);
+startQuizButton.addEventListener('click', () => { // Start quiz from lesson
+    if (currentModuleId) {
+        startQuiz(currentModuleId);
+    } else {
+        console.error("Cannot start quiz, currentModuleId is not set.");
+        goBackToMenu();
+    }
+});
 
 
 // --- Initial Setup ---
 displayModules(); // Load modules based on initial unlock status
 console.log("App Initialized. Unlocked status:", isUnlocked);
+// --- Service Worker Registration ---
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/aetheltech_quiz_pwa/sw.js') // Adjust path if needed when deployed
+            .then(registration => {
+                console.log('Service Worker registered successfully with scope: ', registration.scope);
+            })
+            .catch(err => {
+                console.error('Service Worker registration failed: ', err);
+            });
+    });
+} else {
+    console.log('Service Worker is not supported by this browser.');
+}
