@@ -1,15 +1,16 @@
 // sw.js - Service Worker
 
 const CACHE_NAME = 'aetheltech-quiz-cache-v1'; // Change version if you update assets
+// --- UPDATED PATHS for GitHub Pages subfolder ---
 const urlsToCache = [
-    '/', // Alias for index.html
-    'index.html',
-    'style.css',
-    'script.js',
-    'quiz-data.js',
-    'manifest.json',
-    'icon-192.png',
-    'icon-512.png'
+    '/aetheltech_quiz_pwa/', // Explicit path for the root directory index
+    '/aetheltech_quiz_pwa/index.html',
+    '/aetheltech_quiz_pwa/style.css',
+    '/aetheltech_quiz_pwa/script.js',
+    '/aetheltech_quiz_pwa/quiz-data.js',
+    '/aetheltech_quiz_pwa/manifest.json',
+    '/aetheltech_quiz_pwa/icon-192.png',
+    '/aetheltech_quiz_pwa/icon-512.png'
     // Add other assets like fonts or important images if you add them later
 ];
 
@@ -21,7 +22,9 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME)
             .then(cache => {
                 console.log('Service Worker: Caching app shell');
-                return cache.addAll(urlsToCache);
+                // Use fetch with Request objects to ensure correct mode/credentials
+                const requests = urlsToCache.map(url => new Request(url, { cache: 'reload' }));
+                return cache.addAll(requests); // Use requests array
             })
             .then(() => {
                 console.log('Service Worker: Installation complete');
@@ -29,6 +32,8 @@ self.addEventListener('install', event => {
             })
             .catch(error => {
                 console.error('Service Worker: Caching failed', error);
+                // Log which URLs might have failed if possible (addAll rejects on first failure)
+                console.error('Failed to cache resources. Check network and file paths:', urlsToCache);
             })
     );
 });
@@ -69,35 +74,11 @@ self.addEventListener('fetch', event => {
                 // Otherwise, fetch from network
                 // console.log('Service Worker: Not in cache, fetching from network', event.request.url);
                 return fetch(event.request);
-                // Optional: Cache dynamically fetched resources if needed (Network Falling Back to Cache)
-                /*
-                return fetch(event.request).then(
-                    function(response) {
-                        // Check if we received a valid response
-                        if(!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
-                        }
-
-                        // IMPORTANT: Clone the response. A response is a stream
-                        // and because we want the browser to consume the response
-                        // as well as the cache consuming the response, we need
-                        // to clone it so we have two streams.
-                        var responseToCache = response.clone();
-
-                        caches.open(CACHE_NAME)
-                            .then(function(cache) {
-                                cache.put(event.request, responseToCache);
-                            });
-
-                        return response;
-                    }
-                );
-                */
             })
             .catch(error => {
                 console.error('Service Worker: Fetch error', error);
-                // Optional: You could return a fallback offline page here
-                // if (!navigator.onLine) { return caches.match('/offline.html'); }
+                // Optional fallback offline page (requires caching offline.html)
+                // return caches.match('/aetheltech_quiz_pwa/offline.html');
             })
     );
 });
